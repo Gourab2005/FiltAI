@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Smart Doctor Finder</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 900px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+
+        h2 {
+            text-align: center;
+        }
+
+        #doctor-cards {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .doctor-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            width: 220px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .doctor-card h3 {
+            margin: 0;
+            font-size: 20px;
+        }
+
+        .doctor-card p {
+            margin: 10px 0;
+        }
+
+        .doctor-card .specialty {
+            font-weight: bold;
+            color: #007BFF;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        input,
+        button {
+            padding: 10px;
+            margin-top: 10px;
+            font-size: 16px;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        #result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            background-color: #f3f3f3;
+            display: none;
+        }
+
+        #error {
+            color: red;
+            margin-top: 15px;
+            display: none;
+        }
+
+        #loading {
+            display: none;
+            font-style: italic;
+            color: #777;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h2>Smart Doctor Finder</h2>
+
+    <!-- Symptom Input Form -->
+    <form id="symptomForm">
+        <input type="text" id="symptoms" placeholder="Enter symptoms..." required />
+        <button type="submit">Find Doctor</button>
+    </form>
+
+    <!-- Results and Loading Indicator -->
+    <div id="loading" class="loading">Loading...</div>
+    <div id="result"></div>
+    <div id="error"></div>
+
+    <!-- Doctor Cards -->
+    <div id="doctor-cards">
+        <!-- Doctor cards will be dynamically inserted here -->
+    </div>
+
+    <script>
+        const API_KEY = 'd8c4fbbd51cc66878c127e0687ced573252b49317f9e7dbc2d60f63bf1cfce4f';
+        const HOSPITAL_ID = '68026da649ad1088d5a30603'; 
+
+        const doctors = [
+            {
+                _id: "68026df849ad1088d5a30607",
+                doctorname: "Dr. Amit Roy",
+                specialization: "Cardiologist",
+                contact: "9876543210",
+                email: "amit.roy@example.com",
+                availability: ["9AM - 12PM", "3PM - 6PM"]
+            },
+            {
+                _id: "68026e3249ad1088d5a3060d",
+                doctorname: "Dr. Priya Sen",
+                specialization: "Dermatologist",
+                contact: "9123456780",
+                email: "priya.sen@example.com",
+                availability: ["10AM - 1PM", "2PM - 5PM"]
+            },
+            {
+                _id: "68026e4049ad1088d5a30613",
+                doctorname: "Dr. Arjun Mehta",
+                specialization: "Orthopedic Surgeon",
+                contact: "9234567810",
+                email: "arjun.mehta@example.com",
+                availability: ["11AM - 2PM", "4PM - 7PM"]
+            },
+            {
+                _id: "68026e4c49ad1088d5a30619",
+                doctorname: "Dr. Neha Kapoor",
+                specialization: "Pediatrician",
+                contact: "9345678120",
+                email: "neha.kapoor@example.com",
+                availability: ["9AM - 12PM", "1PM - 4PM"]
+            },
+            {
+                _id: "68026e4c49ad1088d5a30619",
+                doctorname: "Dr.GD",
+                specialization: "ophthalmologist",
+                contact: "9345678120",
+                email: "neha.kapoor@example.com",
+                availability: ["9AM - 12PM", "1PM - 4PM"]
+            }
+        ];
+
+        document.getElementById('symptomForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const symptoms = document.getElementById('symptoms').value;
+
+            // Reset previous results
+            document.getElementById('result').style.display = 'none';
+            document.getElementById('error').style.display = 'none';
+            document.getElementById('loading').style.display = 'block';
+
+            try {
+                // Simulating an API request to predict disease and doctor
+                const res = await fetch(`http://localhost:3000/api/service/AgentResponse?hospitalId=${HOSPITAL_ID}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-api-key': API_KEY
+                    },
+                    body: JSON.stringify({ symptoms })
+                });
+
+                const data = await res.json();
+                document.getElementById('loading').style.display = 'none'; // Hide loading message
+
+                if (data.success) {
+                    // Filter doctors based on the recommended specialty
+                    const recommendedSpecialty = data.data.doctor ? data.data.doctor.speciality : null;
+                    const filteredDoctors = doctors.filter(doctor => doctor.specialization === recommendedSpecialty);
+
+                    // Display filtered doctors
+                    let doctorCardsHtml = '';
+                    filteredDoctors.forEach(doctor => {
+                        doctorCardsHtml += `
+                            <div class="doctor-card">
+                                <h3>${doctor.doctorname}</h3>
+                                <p class="specialty">${doctor.specialization}</p>
+                                <p>Contact: ${doctor.contact}</p>
+                                <p>Email: <a href="mailto:${doctor.email}">${doctor.email}</a></p>
+                                <p>Availability: ${doctor.availability.join(', ')}</p>
+                            </div>
+                        `;
+                    });
+
+                    if (doctorCardsHtml) {
+                        document.getElementById('doctor-cards').innerHTML = doctorCardsHtml;
+                    } else {
+                        document.getElementById('doctor-cards').innerHTML = `<p>No recommended doctors available.</p>`;
+                    }
+
+                    // Display predicted disease and remedy
+                    document.getElementById('result').innerHTML = `
+                        <h3>Predicted Disease: ${data.data.predicted_disease}</h3>
+                        <p>Remedy: ${data.data.remedy}</p>
+                    `;
+                    document.getElementById('result').style.display = 'block'; // Show result
+                } else {
+                    document.getElementById('result').innerText = 'Something went wrong!';
+                    document.getElementById('result').style.display = 'block';
+                }
+            } catch (error) {
+                document.getElementById('loading').style.display = 'none'; // Hide loading message
+                document.getElementById('error').style.display = 'block'; // Show error message
+                document.getElementById('error').innerText = 'Network error or server is down!';
+            }
+        });
+    </script>
+
+</body>
+
+</html>

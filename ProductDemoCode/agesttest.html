@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Smart Doctor Finder</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        input,
+        button {
+            padding: 10px;
+            margin-top: 10px;
+            font-size: 16px;
+        }
+
+        #result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            background-color: #f3f3f3;
+            display: none;
+        }
+
+        #error {
+            color: red;
+            margin-top: 15px;
+            display: none;
+        }
+
+        .loading {
+            font-style: italic;
+            color: #777;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h2>Find the Right Doctor for Your Symptoms</h2>
+
+    <form id="symptomForm">
+        <input type="text" id="symptoms" placeholder="Enter symptoms..." required />
+        <button type="submit">Find Doctor</button>
+    </form>
+
+    <div id="result"></div>
+    <div id="error"></div>
+    <div id="loading" style="display: none;">Loading...</div>
+<div id="error" style="display: none; color: red;"></div>
+
+
+    <script>
+        const API_KEY = 'd8c4fbbd51cc66878c127e0687ced573252b49317f9e7dbc2d60f63bf1cfce4f'; // Provided by your system
+        const HOSPITAL_ID = '68026da649ad1088d5a30603'; // Provided on hospital registration
+
+        document.getElementById('symptomForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const symptoms = document.getElementById('symptoms').value;
+            document.getElementById('result').style.display = 'none'; // Hide previous result
+            document.getElementById('error').style.display = 'none'; // Hide previous error
+            document.getElementById('loading').style.display = 'block'; // Show loading message
+
+            try {
+                const res = await fetch(`http://localhost:3000/api/service/AgentResponse?hospitalId=${HOSPITAL_ID}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-api-key': API_KEY
+                    },
+                    body: JSON.stringify({ symptoms })
+                });
+
+                const data = await res.json();
+
+                document.getElementById('loading').style.display = 'none'; // Hide loading message
+
+                if (data.success) {
+                    let doctorInfo = '';
+
+                    if (data.data.doctor) {
+                        doctorInfo = `
+          <p>Recommended Doctor: ${data.data.doctor.name} (${data.data.doctor.speciality})</p>
+        `;
+                    } else {
+                        doctorInfo = `<p>No doctor recommendation available.</p>`;
+                    }
+
+                    document.getElementById('result').innerHTML = `
+        <h3>Predicted Disease: ${data.data.predicted_disease}</h3>
+        ${doctorInfo}
+        <p>Remedy: ${data.data.remedy}</p>
+      `;
+                    document.getElementById('result').style.display = 'block'; // Show result
+                } else {
+                    document.getElementById('result').innerText = 'Something went wrong!';
+                    document.getElementById('result').style.display = 'block';
+                }
+            } catch (error) {
+                document.getElementById('loading').style.display = 'none'; // Hide loading message
+                document.getElementById('error').style.display = 'block'; // Show error message
+                document.getElementById('error').innerText = 'Network error or server is down!';
+            }
+        });
+
+    </script>
+
+</body>
+
+</html>

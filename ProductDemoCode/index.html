@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Test Payment - SaaS Platform</title>
+    <script src="https://sdk.cashfree.com/js/v3/cashfree.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 2rem;
+            background-color: #f4f4f4;
+        }
+
+        button {
+            padding: 12px 24px;
+            font-size: 16px;
+            background-color: #0f9d58;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        #message {
+            margin-top: 1rem;
+            color: #333;
+        }
+
+        .error {
+            color: #e53935;
+        }
+
+        .success {
+            color: #0f9d58;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Test SaaS Payment</h1>
+
+    <!-- Payment button -->
+    <button id="paymentButton" style="display: none;" onclick="initiatePayment()">Subscribe Now (Test)</button>
+
+    <!-- Message container -->
+    <div id="message"></div>
+
+    <script>
+        // The login function (to be called from login page)
+        async function loginUser(username, password) {
+            try {
+                const response = await fetch("http://localhost:3000/api/auth/login", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Store the token in localStorage
+                    localStorage.setItem("authToken", data.token);
+                    localStorage.setItem("username", data.username);
+                    localStorage.setItem("email", data.email);
+                    return { success: true, message: data.message };
+                } else {
+                    return { success: false, message: data.message || "Login failed" };
+                }
+            } catch (error) {
+                console.error("Login error:", error);
+                return { success: false, message: "An error occurred during login" };
+            }
+        }
+
+        // ✅ Check if user is logged in by checking localStorage for JWT
+        const JWT_TOKEN = localStorage.getItem("authToken");
+
+        const messageDiv = document.getElementById("message");
+        const paymentButton = document.getElementById("paymentButton");
+
+        if (!JWT_TOKEN) {
+            // User is not logged in
+            messageDiv.innerHTML = `Please <a href="/login.html">login</a> to continue with payment.`;
+        } else {
+            // User is logged in
+            paymentButton.style.display = "inline-block";
+        }
+
+        async function initiatePayment() {
+            try {
+                messageDiv.textContent = "Processing your request...";
+
+                const res = await fetch("http://localhost:3000/api/service/subscribe", {
+                    method: "POST",
+                    headers: {
+                        "Authorization": `${JWT_TOKEN}`,
+                        "Content-Type": "application/json"
+                    }
+                });
+
+                const data = await res.json();
+
+                if (data.success && data.paymentSessionId) {
+                    messageDiv.textContent = "Session created. Opening Cashfree checkout...";
+
+                    const cashfree = Cashfree({ mode: "sandbox" });
+                    cashfree.checkout({
+                        paymentSessionId: data.paymentSessionId,
+                        redirect: false,
+                        onSuccess: async function (paymentData) {
+                            console.log("Payment success:", paymentData);
+                            try {
+                                // Include more payment details in your verification request
+                                const finalRes = await fetch("http://localhost:3000/api/service/payment-success", {
+                                    method: "POST",
+                                    headers: {
+                                        "Authorization": `Bearer ${JWT_TOKEN}`,
+                                        "Content-Type": "application/json"
+                                    },
+                                    body: JSON.stringify({
+                                        order_id: paymentData.order.order_id,
+                                        payment_id: paymentData.transaction.paymentId || paymentData.transaction.txnId,
+                                        reference_id: paymentData.transaction.referenceId || '',
+                                        amount: paymentData.order.amount,
+                                        status: "SUCCESS"
+                                    })
+                                });
+
+                                const finalData = await finalRes.json();
+                                console.log("Server response:", finalData);  // Log the server response
+
+                                if (finalData.success) {
+                                    messageDiv.className = "success";
+                                    messageDiv.textContent = finalData.message || "Payment completed successfully!";
+                                } else {
+                                    messageDiv.className = "error";
+                                    messageDiv.textContent = finalData.message || "Error verifying payment status.";
+                                }
+                            } catch (error) {
+                                console.error("Verification error:", error);
+                                messageDiv.className = "error";
+                                messageDiv.textContent = "Error during payment verification. Please contact support.";
+                            }
+                        },
+                        onFailure: function (failData) {
+                            console.error("Payment failed:", failData);
+                            messageDiv.className = "error";
+                            messageDiv.textContent = failData.message || "Payment failed. Please try again.";
+                        },
+                        onClose: function () {
+                            messageDiv.textContent = "Payment window closed. You can try again when ready.";
+                        }
+                    });
+                } else {
+                    messageDiv.className = "error";
+                    messageDiv.textContent = data.message || "Error creating payment session.";
+                }
+            } catch (error) {
+                console.error("Payment initiation error:", error);
+                messageDiv.className = "error";
+                messageDiv.textContent = "Error connecting to payment service. Please try again later.";
+            }
+        }
+    </script>
+</body>
+
+</html>
