@@ -2,10 +2,20 @@ const { User } = require('../Models/User');
 
 const profile = async (req, res) => {
     try {
-        const user = await User.findById(req.user._id).select('-password').populate('Apidata').populate('Hospitals'); 
+        const user = await User.findById(req.user._id)
+            .select('-password')
+            .populate('Apidata')
+            .populate({
+                path: 'Hospitals',
+                populate: {
+                    path: 'Doctors' // or whatever the field is in Hospital schema
+                }
+            });
+
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
+
         res.status(200).json({
             message: 'Profile fetched successfully',
             success: true,
@@ -14,5 +24,6 @@ const profile = async (req, res) => {
     } catch (err) {
         res.status(500).json({ message: 'Server error', error: err.message });
     }
-}
+};
+
 module.exports = profile;
