@@ -1,0 +1,1243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FitAI Healthcare Platform</title>
+    <!-- Add Cashfree SDK -->
+    <script src="https://sdk.cashfree.com/js/v3/cashfree.js"></script>
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3f37c9;
+            --success: #4cc9f0;
+            --danger: #ef476f;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --grey: #adb5bd;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            border-bottom: 1px solid var(--grey);
+            margin-bottom: 30px;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--primary);
+        }
+        
+        .logo i {
+            margin-right: 10px;
+            color: var(--success);
+        }
+        
+        .auth-container {
+            max-width: 500px;
+            margin: 50px auto;
+            padding: 30px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .auth-toggle {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        
+        .auth-toggle button {
+            flex: 1;
+            padding: 10px;
+            background: none;
+            border: none;
+            border-bottom: 2px solid var(--grey);
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        .auth-toggle button.active {
+            border-bottom: 2px solid var(--primary);
+            color: var(--primary);
+            font-weight: bold;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--grey);
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        
+        button {
+            padding: 12px 20px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        
+        button:hover {
+            background-color: var(--secondary);
+        }
+        
+        .dashboard {
+            display: none;
+        }
+        
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+        }
+        
+        .user-info img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        
+        .card {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--grey);
+        }
+        
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--grey);
+        }
+        
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+        }
+        
+        .tab.active {
+            border-bottom: 2px solid var(--primary);
+            color: var(--primary);
+            font-weight: bold;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        table th, table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        table th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 100;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 500px;
+        }
+        
+        .close {
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .hospital-card {
+            border-radius: 8px;
+            border: 1px solid #eee;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .hospital-card h3 {
+            margin-bottom: 10px;
+        }
+        
+        .doctor-list {
+            margin-top: 10px;
+        }
+        
+        .doctor-card {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .badge {
+            background-color: var(--primary);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-left: 5px;
+        }
+        
+        .badge-success {
+            background-color: #2ecc71;
+        }
+        
+        .badge-danger {
+            background-color: var(--danger);
+        }
+        
+        .api-info {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f0f8ff;
+            border-left: 4px solid var(--primary);
+            border-radius: 4px;
+        }
+        
+        .api-key {
+            font-family: monospace;
+            padding: 5px;
+            background-color: #eee;
+            border-radius: 4px;
+            margin: 5px 0;
+        }
+        
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            background-color: #333;
+            color: white;
+            border-radius: 5px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .toast.show {
+            opacity: 1;
+        }
+        
+        .toast-success {
+            background-color: #2ecc71;
+        }
+        
+        .toast-error {
+            background-color: var(--danger);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">
+                <span>🏥 FitAI</span>
+            </div>
+            <div id="navButtons" style="display: none;">
+                <button id="logoutBtn" onclick="logout()">Logout</button>
+            </div>
+        </div>
+
+        <!-- Auth Container -->
+        <div id="authContainer" class="auth-container">
+            <div class="auth-toggle">
+                <button id="loginToggle" class="active" onclick="toggleAuth('login')">Login</button>
+                <button id="signupToggle" onclick="toggleAuth('signup')">Sign Up</button>
+            </div>
+
+            <!-- Login Form -->
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="loginUsername">Username</label>
+                    <input type="text" id="loginUsername" required>
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Password</label>
+                    <input type="password" id="loginPassword" required>
+                </div>
+                <button type="submit">Login</button>
+            </form>
+
+            <!-- Signup Form -->
+            <form id="signupForm" style="display: none;">
+                <div class="form-group">
+                    <label for="signupUsername">Username</label>
+                    <input type="text" id="signupUsername" required>
+                </div>
+                <div class="form-group">
+                    <label for="signupEmail">Email</label>
+                    <input type="email" id="signupEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="signupPassword">Password</label>
+                    <input type="password" id="signupPassword" required>
+                </div>
+                <button type="submit">Sign Up</button>
+            </form>
+        </div>
+
+        <!-- Dashboard Container -->
+        <div id="dashboard" class="dashboard">
+            <div class="dashboard-header">
+                <h2>Welcome, <span id="username">User</span>!</h2>
+                <div class="user-info">
+                    <span id="userEmail">user@example.com</span>
+                </div>
+            </div>
+
+            <div class="tabs">
+                <div class="tab active" data-tab="hospitals">Hospitals</div>
+                <div class="tab" data-tab="doctors">Doctors</div>
+                <div class="tab" data-tab="apiSettings">API Settings</div>
+                <div class="tab" data-tab="diagnosis">AI Diagnosis</div>
+            </div>
+
+            <!-- Hospitals Tab -->
+            <div id="hospitalsTab" class="tab-content active">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>My Hospitals</h3>
+                        <button onclick="showAddHospitalModal()">Add Hospital</button>
+                    </div>
+                    <div id="hospitalsList"></div>
+                </div>
+            </div>
+
+            <!-- Doctors Tab -->
+            <div id="doctorsTab" class="tab-content">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Doctors</h3>
+                        <button onclick="showAddDoctorModal()">Add Doctor</button>
+                    </div>
+                    <select id="hospitalSelect" onchange="loadDoctorsByHospital()">
+                        <option value="">Select Hospital</option>
+                    </select>
+                    <div id="doctorsList"></div>
+                </div>
+            </div>
+
+            <!-- API Settings Tab -->
+            <div id="apiSettingsTab" class="tab-content">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>API Management</h3>
+                    </div>
+                    <div id="apiInfo">
+                        <div class="api-info">
+                            <p>Status: <span id="apiStatus">Not Available</span></p>
+                            <p>API Key: <span id="apiKey" class="api-key">Not Generated</span></p>
+                            <p>Subscription: <span id="subscriptionType">Free</span></p>
+                            <p>API Calls: <span id="apiCallCount">0</span>/<span id="apiCallLimit">0</span></p>
+                            <p>Valid Until: <span id="subscriptionEndDate">N/A</span></p>
+                        </div>
+                        <button id="generateApiBtn" onclick="generateApiKey()">Generate API Key</button>
+                        <button id="subscribeBtn" onclick="subscribe()">Upgrade Subscription</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Diagnosis Tab -->
+            <div id="diagnosisTab" class="tab-content">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>AI Diagnosis</h3>
+                    </div>
+                    <div class="form-group">
+                        <label for="diagnosisHospital">Select Hospital</label>
+                        <select id="diagnosisHospital">
+                            <option value="">Select Hospital</option>
+                        </select>
+                    </div>
+                    <button onclick="getAIDiagnosis()">Get Diagnosis</button>
+                    <div id="diagnosisResult" class="card" style="display: none; margin-top: 20px;">
+                        <h4>Diagnosis Results</h4>
+                        <div id="predictedDisease"></div>
+                        <div id="recommendedRemedy"></div>
+                        <div id="recommendedDoctor"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Hospital Modal -->
+        <div id="addHospitalModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeModal('addHospitalModal')">&times;</span>
+                <h3>Add New Hospital</h3>
+                <form id="addHospitalForm">
+                    <div class="form-group">
+                        <label for="hospitalName">Hospital Name</label>
+                        <input type="text" id="hospitalName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="hospitalLocation">Location</label>
+                        <input type="text" id="hospitalLocation" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="hospitalHead">Hospital Head</label>
+                        <input type="text" id="hospitalHead" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="hospitalContact">Contact</label>
+                        <input type="text" id="hospitalContact" required>
+                    </div>
+                    <button type="submit">Add Hospital</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Add Doctor Modal -->
+        <div id="addDoctorModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeModal('addDoctorModal')">&times;</span>
+                <h3>Add New Doctor</h3>
+                <form id="addDoctorForm">
+                    <div class="form-group">
+                        <label for="doctorHospital">Hospital</label>
+                        <select id="doctorHospital" required>
+                            <option value="">Select Hospital</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="doctorName">Doctor Name</label>
+                        <input type="text" id="doctorName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="doctorSpecialization">Specialization</label>
+                        <input type="text" id="doctorSpecialization" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="doctorContact">Contact</label>
+                        <input type="text" id="doctorContact" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="doctorEmail">Email</label>
+                        <input type="email" id="doctorEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Availability</label>
+                        <div id="availabilityContainer">
+                            <div class="availability-entry">
+                                <select class="day-select">
+                                    <option value="Monday">Monday</option>
+                                    <option value="Tuesday">Tuesday</option>
+                                    <option value="Wednesday">Wednesday</option>
+                                    <option value="Thursday">Thursday</option>
+                                    <option value="Friday">Friday</option>
+                                    <option value="Saturday">Saturday</option>
+                                    <option value="Sunday">Sunday</option>
+                                </select>
+                                <input type="text" class="slot-input" placeholder="e.g. 9-12, 2-4" required>
+                                <button type="button" onclick="addAvailabilitySlot()">+</button>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit">Add Doctor</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Payment Processing Modal -->
+        <div id="paymentModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeModal('paymentModal')">&times;</span>
+                <h3>Payment Processing</h3>
+                <div id="paymentMessage" style="margin: 20px 0;"></div>
+            </div>
+        </div>
+
+        <!-- Toast Notification -->
+        <div id="toast" class="toast"></div>
+
+        <!-- Loading Indicator -->
+        <div id="loading" class="loading">
+            <p>Loading...</p>
+        </div>
+    </div>
+
+    <script>
+        // Base URL for API - CORRECTED to use localhost:3000
+        const API_BASE_URL = 'http://localhost:3000/api';
+        
+        // Auth state
+        let authToken = localStorage.getItem('token');
+        let currentUser = {
+            username: localStorage.getItem('username') || '',
+            email: localStorage.getItem('email') || ''
+        };
+        let userProfile = null;
+        let hospitals = [];
+        let apiData = null;
+
+        // DOM Elements
+        const authContainer = document.getElementById('authContainer');
+        const dashboard = document.getElementById('dashboard');
+        const navButtons = document.getElementById('navButtons');
+        const usernameSpan = document.getElementById('username');
+        const userEmailSpan = document.getElementById('userEmail');
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', init);
+
+        function init() {
+            // Setup event listeners
+            document.getElementById('loginForm').addEventListener('submit', handleLogin);
+            document.getElementById('signupForm').addEventListener('submit', handleSignup);
+            document.getElementById('addHospitalForm').addEventListener('submit', handleAddHospital);
+            document.getElementById('addDoctorForm').addEventListener('submit', handleAddDoctor);
+            
+            // Setup tab navigation
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const tabName = this.dataset.tab;
+                    showTab(tabName);
+                });
+            });
+            
+            // Check if user is already logged in
+            if (authToken) {
+                loadUserProfile();
+            } else {
+                showAuthForms();
+            }
+        }
+
+        // Authentication Functions
+        function showAuthForms() {
+            authContainer.style.display = 'block';
+            dashboard.style.display = 'none';
+            navButtons.style.display = 'none';
+        }
+
+        function showDashboard() {
+            authContainer.style.display = 'none';
+            dashboard.style.display = 'block';
+            navButtons.style.display = 'block';
+            
+            // Update user info in the dashboard
+            usernameSpan.textContent = currentUser.username;
+            userEmailSpan.textContent = currentUser.email;
+        }
+
+        function toggleAuth(type) {
+            const loginForm = document.getElementById('loginForm');
+            const signupForm = document.getElementById('signupForm');
+            const loginToggle = document.getElementById('loginToggle');
+            const signupToggle = document.getElementById('signupToggle');
+            
+            if (type === 'login') {
+                loginForm.style.display = 'block';
+                signupForm.style.display = 'none';
+                loginToggle.classList.add('active');
+                signupToggle.classList.remove('active');
+            } else {
+                loginForm.style.display = 'none';
+                signupForm.style.display = 'block';
+                loginToggle.classList.remove('active');
+                signupToggle.classList.add('active');
+            }
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            showLoading(true);
+            
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/user/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Save token and user info to local storage
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('username', data.username);
+                    localStorage.setItem('email', data.email);
+                    
+                    // Update auth state
+                    authToken = data.token;
+                    currentUser = {
+                        username: data.username,
+                        email: data.email
+                    };
+                    
+                    // Load user profile and show dashboard
+                    await loadUserProfile();
+                    showToast('Login successful!', 'success');
+                } else {
+                    showToast(data.message || 'Login failed', 'error');
+                }
+            } catch (error) {
+                showToast('Error: ' + error.message, 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        async function handleSignup(e) {
+            e.preventDefault();
+            showLoading(true);
+            
+            const username = document.getElementById('signupUsername').value;
+            const email = document.getElementById('signupEmail').value;
+            const password = document.getElementById('signupPassword').value;
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/user/signup`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username, email, password })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showToast('Signup successful! Please login.', 'success');
+                    toggleAuth('login');
+                    document.getElementById('loginUsername').value = username;
+                } else {
+                    showToast(data.message || 'Signup failed', 'error');
+                }
+            } catch (error) {
+                showToast('Error: ' + error.message, 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        function logout() {
+            // Clear auth state and local storage
+            authToken = null;
+            currentUser = { username: '', email: '' };
+            localStorage.removeItem('token');
+            localStorage.removeItem('username');
+            localStorage.removeItem('email');
+            
+            // Show auth forms
+            showAuthForms();
+            showToast('Logged out successfully!', 'success');
+        }
+
+        // User Profile Functions
+        async function loadUserProfile() {
+            showLoading(true);
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/user/profile`, {
+                    headers: {
+                        'Authorization': authToken
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    userProfile = data.user;
+                    hospitals = userProfile.Hospitals || [];
+                    apiData = userProfile.Apidata && userProfile.Apidata.length > 0 ? userProfile.Apidata[0] : null;
+                    
+                    // Show dashboard and load required data
+                    showDashboard();
+                    loadHospitals();
+                    populateHospitalDropdowns();
+                    loadApiInfo();
+                } else {
+                    showToast(data.message || 'Failed to load profile', 'error');
+                    // If unauthorized, show auth forms
+                    if (response.status === 401) {
+                        showAuthForms();
+                    }
+                }
+            } catch (error) {
+                showToast('Error: ' + error.message, 'error');
+                showAuthForms();
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Hospital Functions
+        function loadHospitals() {
+            const hospitalsList = document.getElementById('hospitalsList');
+            hospitalsList.innerHTML = '';
+            
+            if (hospitals.length === 0) {
+                hospitalsList.innerHTML = '<p>No hospitals found. Add your first hospital to get started!</p>';
+                return;
+            }
+            
+            hospitals.forEach(hospital => {
+                const hospitalCard = document.createElement('div');
+                hospitalCard.className = 'hospital-card';
+                hospitalCard.innerHTML = `
+                    <h3>${hospital.hospitalname}</h3>
+                    <p><strong>Location:</strong> ${hospital.location}</p>
+                    <p><strong>Head:</strong> ${hospital.hospitalhead}</p>
+                    <p><strong>Contact:</strong> ${hospital.contact}</p>
+                    <p><strong>Doctors:</strong> ${hospital.Doctors ? hospital.Doctors.length : 0}</p>
+                `;
+                
+                if (hospital.Doctors && hospital.Doctors.length > 0) {
+                    const doctorList = document.createElement('div');
+                    doctorList.className = 'doctor-list';
+                    doctorList.innerHTML = '<h4>Doctors:</h4>';
+                    
+                    hospital.Doctors.forEach(doctor => {
+                        const doctorItem = document.createElement('div');
+                        doctorItem.className = 'doctor-card';
+                        doctorItem.innerHTML = `
+                            <p><strong>${doctor.doctorname}</strong> - ${doctor.specialization}</p>
+                            <p>Contact: ${doctor.contact}</p>
+                        `;
+                        doctorList.appendChild(doctorItem);
+                    });
+                    
+                    hospitalCard.appendChild(doctorList);
+                }
+                
+                hospitalsList.appendChild(hospitalCard);
+            });
+        }
+
+        function showAddHospitalModal() {
+            document.getElementById('addHospitalModal').style.display = 'block';
+        }
+
+        function populateHospitalDropdowns() {
+            const hospitalSelects = document.querySelectorAll('#hospitalSelect, #doctorHospital, #diagnosisHospital');
+            
+            hospitalSelects.forEach(select => {
+                // Clear previous options except for the placeholder
+                while (select.options.length > 1) {
+                    select.remove(1);
+                }
+                
+                // Add hospital options
+                hospitals.forEach(hospital => {
+                    const option = document.createElement('option');
+                    option.value = hospital._id;
+                    option.textContent = hospital.hospitalname;
+                    select.appendChild(option);
+                });
+            });
+        }
+
+        async function handleAddHospital(e) {
+            e.preventDefault();
+            showLoading(true);
+            
+            const hospitalData = {
+                hospitalname: document.getElementById('hospitalName').value,
+                location: document.getElementById('hospitalLocation').value,
+                hospitalhead: document.getElementById('hospitalHead').value,
+                contact: document.getElementById('hospitalContact').value
+            };
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/user/addHospital`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': authToken
+                    },
+                    body: JSON.stringify(hospitalData)
+                });
+                
+                const data = await response.json();
+                
+                if (data.message.includes('successfully')) {
+                    showToast('Hospital added successfully!', 'success');
+                    closeModal('addHospitalModal');
+                    
+                    // Refresh user profile to get updated hospital list
+                    await loadUserProfile();
+                } else {
+                    showToast(data.message || 'Failed to add hospital', 'error');
+                }
+            } catch (error) {
+                showToast('Error: ' + error.message, 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Doctor Functions
+        function loadDoctorsByHospital() {
+            const hospitalId = document.getElementById('hospitalSelect').value;
+            const doctorsList = document.getElementById('doctorsList');
+            doctorsList.innerHTML = '';
+            
+            if (!hospitalId) {
+                doctorsList.innerHTML = '<p>Please select a hospital to view doctors.</p>';
+                return;
+            }
+            
+            const hospital = hospitals.find(h => h._id === hospitalId);
+            
+            if (!hospital || !hospital.Doctors || hospital.Doctors.length === 0) {
+                doctorsList.innerHTML = '<p>No doctors found for this hospital. Add a doctor to get started!</p>';
+                return;
+            }
+            
+            hospital.Doctors.forEach(doctor => {
+                const doctorCard = document.createElement('div');
+                doctorCard.className = 'doctor-card';
+                doctorCard.innerHTML = `
+                    <h3>${doctor.doctorname}</h3>
+                    <p><strong>Specialization:</strong> ${doctor.specialization}</p>
+                    <p><strong>Contact:</strong> ${doctor.contact}</p>
+                    <p><strong>Email:</strong> ${doctor.email}</p>
+                    <div><strong>Availability:</strong></div>
+                `;
+                
+                const availabilityList = document.createElement('ul');
+                doctor.availability.forEach(avail => {
+                    const item = document.createElement('li');
+                    item.textContent = `${avail.day}: ${avail.slots.join(', ')}`;
+                    availabilityList.appendChild(item);
+                });
+                
+                doctorCard.appendChild(availabilityList);
+                doctorsList.appendChild(doctorCard);
+            });
+        }
+
+        function showAddDoctorModal() {
+            document.getElementById('addDoctorModal').style.display = 'block';
+        }
+
+        function addAvailabilitySlot() {
+            const container = document.getElementById('availabilityContainer');
+            const newEntry = document.createElement('div');
+            newEntry.className = 'availability-entry';
+            newEntry.innerHTML = `
+                <select class="day-select">
+                    <option value="Monday">Monday</option>
+                    <option value="Tuesday">Tuesday</option>
+                    <option value="Wednesday">Wednesday</option>
+                    <option value="Thursday">Thursday</option>
+                    <option value="Friday">Friday</option>
+                    <option value="Saturday">Saturday</option>
+                    <option value="Sunday">Sunday</option>
+                </select>
+                <input type="text" class="slot-input" placeholder="e.g. 9-12, 2-4" required>
+                <button type="button" onclick="removeAvailabilitySlot(this)">-</button>
+            `;
+            container.appendChild(newEntry);
+        }
+
+        function removeAvailabilitySlot(button) {
+            const entry = button.parentNode;
+            entry.parentNode.removeChild(entry);
+        }
+
+        async function handleAddDoctor(e) {
+            e.preventDefault();
+            showLoading(true);
+            
+            const hospitalId = document.getElementById('doctorHospital').value;
+            const doctorName = document.getElementById('doctorName').value;
+            const specialization = document.getElementById('doctorSpecialization').value;
+            const contact = document.getElementById('doctorContact').value;
+            const email = document.getElementById('doctorEmail').value;
+            
+            // Get availability data
+            const availability = [];
+            const availabilityEntries = document.querySelectorAll('.availability-entry');
+            
+            availabilityEntries.forEach(entry => {
+                const day = entry.querySelector('.day-select').value;
+                const slotsText = entry.querySelector('.slot-input').value;
+                const slots = slotsText.split(',').map(slot => slot.trim());
+                
+                availability.push({
+                    day,
+                    slots
+                });
+            });
+            
+            const doctorData = {
+                doctorname: doctorName,
+                specialization,
+                contact,
+                email,
+                availability,
+                hospitalId
+            };
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/user/adddoctor`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': authToken
+                    },
+                    body: JSON.stringify(doctorData)
+                });
+                
+                const data = await response.json();
+                
+                if (data.message.includes('successfully')) {
+                    showToast('Doctor added successfully!', 'success');
+                    closeModal('addDoctorModal');
+                    
+                    // Refresh user profile to get updated doctor list
+                    await loadUserProfile();
+                } else {
+                    showToast(data.message || 'Failed to add doctor', 'error');
+                }
+            } catch (error) {
+                showToast('Error: ' + error.message, 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // API Functions
+        function loadApiInfo() {
+            const apiStatus = document.getElementById('apiStatus');
+            const apiKey = document.getElementById('apiKey');
+            const subscriptionType = document.getElementById('subscriptionType');
+            const apiCallCount = document.getElementById('apiCallCount');
+            const apiCallLimit = document.getElementById('apiCallLimit');
+            const subscriptionEndDate = document.getElementById('subscriptionEndDate');
+            
+            if (apiData) {
+                apiStatus.textContent = apiData.activationstatus ? 'Active' : 'Inactive';
+                apiKey.textContent = apiData.apiKey || 'Not Generated';
+                subscriptionType.textContent = apiData.subscriptionType || 'Free';
+                apiCallCount.textContent = apiData.apicallCount || '0';
+                apiCallLimit.textContent = apiData.limit || '0';
+                
+                if (apiData.subscriptionEndDate) {
+                    const endDate = new Date(apiData.subscriptionEndDate);
+                    subscriptionEndDate.textContent = endDate.toLocaleDateString();
+                } else {
+                    subscriptionEndDate.textContent = 'N/A';
+                }
+            }
+        }
+
+        async function generateApiKey() {
+            showLoading(true);
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/service/generate-api`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': authToken
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showToast('API key generated successfully!', 'success');
+                    
+                    // Refresh user profile to get updated API data
+                    await loadUserProfile();
+                } else {
+                    showToast(data.message || 'Failed to generate API key', 'error');
+                }
+            } catch (error) {
+                showToast('Error: ' + error.message, 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        async function subscribe() {
+            // Show payment modal with processing message
+            const paymentModal = document.getElementById('paymentModal');
+            const paymentMessage = document.getElementById('paymentMessage');
+            paymentMessage.textContent = "Processing your request...";
+            paymentModal.style.display = 'block';
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/service/subscribe`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': authToken,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success && data.paymentSessionId) {
+                    paymentMessage.textContent = "Session created. Opening Cashfree checkout...";
+                    
+                    // Initialize Cashfree checkout
+                    const cashfree = Cashfree({ mode: "sandbox" });
+                    cashfree.checkout({
+                        paymentSessionId: data.paymentSessionId,
+                        redirect: false,
+                        onSuccess: async function(paymentData) {
+                            console.log("Payment success:", paymentData);
+                            paymentMessage.textContent = "Payment successful! Verifying...";
+                            
+                            try {
+                                // Verify payment with server
+                                const verifyResponse = await fetch(`${API_BASE_URL}/service/payment-success`, {
+                                    method: 'POST',
+                                    headers: {
+                                        'Authorization': authToken,
+                                        'Content-Type': 'application/json'
+                                    },
+                                    body: JSON.stringify({
+                                        order_id: paymentData.order.order_id,
+                                        payment_id: paymentData.transaction.paymentId || paymentData.transaction.txnId,
+                                        reference_id: paymentData.transaction.referenceId || '',
+                                        amount: paymentData.order.amount,
+                                        status: "SUCCESS"
+                                    })
+                                });
+                                
+                                const verifyData = await verifyResponse.json();
+                                
+                                if (verifyData.success) {
+                                    paymentMessage.textContent = verifyData.message || "Payment completed successfully!";
+                                    showToast('Subscription upgraded successfully!', 'success');
+                                    
+                                    // Refresh user profile to get updated subscription data
+                                    setTimeout(async () => {
+                                        await loadUserProfile();
+                                        closeModal('paymentModal');
+                                    }, 2000);
+                                } else {
+                                    paymentMessage.textContent = verifyData.message || "Error verifying payment status.";
+                                    showToast('Payment verification failed', 'error');
+                                }
+                            } catch (error) {
+                                paymentMessage.textContent = "Error during payment verification. Please contact support.";
+                                showToast('Error: ' + error.message, 'error');
+                            }
+                        },
+                        onFailure: function(failData) {
+                            console.error("Payment failed:", failData);
+                            paymentMessage.textContent = failData.message || "Payment failed. Please try again.";
+                            showToast('Payment failed', 'error');
+                        },
+                        onClose: function() {
+                            paymentMessage.textContent = "Payment window closed. You can try again when ready.";
+                            setTimeout(() => {
+                                closeModal('paymentModal');
+                            }, 2000);
+                        }
+                    });
+                } else if (data.cashfree_url) {
+                    // For backward compatibility with the old API response format
+                    paymentMessage.textContent = "Redirecting to Cashfree...";
+                    window.location.href = data.cashfree_url;
+                } else {
+                    paymentMessage.textContent = data.message || "Error creating payment session.";
+                    showToast(data.message || 'Failed to initiate subscription', 'error');
+                    setTimeout(() => {
+                        closeModal('paymentModal');
+                    }, 2000);
+                }
+            } catch (error) {
+                paymentMessage.textContent = "Error connecting to payment service. Please try again later.";
+                showToast('Error: ' + error.message, 'error');
+                setTimeout(() => {
+                    closeModal('paymentModal');
+                }, 2000);
+            }
+        }
+
+        // AI Diagnosis Functions
+        async function getAIDiagnosis() {
+            const hospitalId = document.getElementById('diagnosisHospital').value;
+            
+            if (!hospitalId) {
+                showToast('Please select a hospital', 'error');
+                return;
+            }
+            
+            showLoading(true);
+            
+            try {
+                // Check if API key exists
+                if (!apiData || !apiData.apiKey) {
+                    showToast('Please generate an API key first', 'error');
+                    showTab('apiSettings');
+                    return;
+                }
+                
+                const response = await fetch(`${API_BASE_URL}/service/AgentResponse?hospitalId=${hospitalId}`, {
+                    headers: {
+                        'x-api-key': apiData.apiKey
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Display diagnosis results
+                    document.getElementById('predictedDisease').innerHTML = `<p>${data.data.predicted_disease}</p>`;
+                    document.getElementById('recommendedRemedy').innerHTML = `<p><strong>Recommended Remedy:</strong> ${data.data.remedy}</p>`;
+                    
+                    if (data.data.doctor) {
+                        document.getElementById('recommendedDoctor').innerHTML = `
+                            <p><strong>Recommended Doctor:</strong> ${data.data.doctor.name} (${data.data.doctor.speciality})</p>
+                        `;
+                    }
+                    
+                    document.getElementById('diagnosisResult').style.display = 'block';
+                } else {
+                    showToast(data.message || 'Failed to get diagnosis', 'error');
+                }
+            } catch (error) {
+                showToast('Error: ' + error.message, 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Utility Functions
+        function showTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Remove active class from all tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected tab content and mark tab as active
+            document.getElementById(`${tabName}Tab`).classList.add('active');
+            document.querySelector(`.tab[data-tab="${tabName}"]`).classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        function showLoading(show) {
+            document.getElementById('loading').style.display = show ? 'block' : 'none';
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast';
+            toast.classList.add(`toast-${type}`);
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Close modals when clicking outside
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+            }
+        };
+    </script>
+</body>
+</html>

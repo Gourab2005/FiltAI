@@ -3,34 +3,33 @@
 @tailwind utilities;
 
 
-html{
+/* html{
     scroll-behavior: smooth;
   }
   
-  /* Custom Scrollbar */
   ::-webkit-scrollbar {
       width: 10px;
       height: 10px;
     }
     
     ::-webkit-scrollbar-thumb {
-      background-color: #38b2ac; /* Teal-400 */
+      background-color: #38b2ac;
       border-radius: 5px;
     }
     
     ::-webkit-scrollbar-track {
       background: linear-gradient(to top, #1a202c, #000000);
-   /* Darker background (gray-800) */
+
     }
     
     ::-webkit-scrollbar-thumb:hover {
-      background-color: #319795; /* Darker teal-400 for hover */
+      background-color: #319795; 
     }
-    
+     */
   
   
     /* Custom Mouse Cursor */
-  .custom-cursor {
+  /* .custom-cursor {
     position: fixed;
     width: 40px;
     height: 40px;
@@ -50,4 +49,4 @@ html{
 
   body{
     cursor: none;
-  }
+  } */
