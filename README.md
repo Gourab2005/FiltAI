@@ -1,5 +1,6 @@
 
 # 🏥 FiltAI – AI-powered Medical API SaaS Platform
+![Screenshot 2025-04-20 114233](https://github.com/user-attachments/assets/a63de829-4491-481d-8a71-3286a60aabf0)
 
 ## 📑 Table of Contents
 - [📝 Description](#-description)
@@ -86,6 +87,11 @@ Here's how an admin can use the FitAI platform step-by-step:
    - Track remaining calls, renew subscriptions, and upgrade plans.
 
 > 🧠 The AI works **hospital-wise**, so each hospital's doctors are matched separately.
+
+
+![Screenshot 2025-04-20 114311](https://github.com/user-attachments/assets/0010c18c-e9e8-4b17-a278-4b0db2d6e09d)
+![Screenshot 2025-04-20 114413](https://github.com/user-attachments/assets/bfd4a220-e279-4ce8-84ee-ef83c0497ef3)
+![Screenshot 2025-04-19 183750](https://github.com/user-attachments/assets/13dcd878-e933-4462-8f92-459427ec2f70)
 
 ---
 
@@ -220,6 +226,8 @@ x-api-key: d8c4fbbd51cc66878c127e0687ced573252b49317f9e7dbc2d60f63bf1cfce4f
 - 💼 **Integrate in existing hospital management software**
 - 📲 **web application support**
 - 🔁 **Multi-department queries like Cardiology, Pediatrics, etc.**
+- Example integartion :
+![Screenshot 2025-04-20 115825](https://github.com/user-attachments/assets/306eba01-d3df-4da9-8991-c9f58faf0395)
 
 ---
 
